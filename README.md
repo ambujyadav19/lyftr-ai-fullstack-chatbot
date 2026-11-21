@@ -6,13 +6,45 @@ A production-grade, resilient full-stack conversational AI application built wit
 
 ## 1. Live URLs
 
-| Service | Deployment Platform | URL / Link |
+| Service | Deployment Platform | Status / Guide |
 | :--- | :--- | :--- |
-| **Frontend UI** | Vercel / Render | *[To be updated upon deployment]* (e.g., `https://lyftr-ai-chatbot.vercel.app`) |
-| **Backend API** | Render / Railway | *[To be updated upon deployment]* (e.g., `https://lyftr-backend.onrender.com`) |
-| **Backend Health** | Direct Health Check | *[To be updated upon deployment]* (e.g., `https://lyftr-backend.onrender.com/health`) |
+| **Frontend UI** | Vercel | Connect GitHub repo `lyftr-ai-fullstack-chatbot` (see deployment steps below) |
+| **Backend API** | Render | Deployed via `render.yaml` Blueprint or Docker Web Service |
+| **Backend Health** | Direct Health Check | `https://<your-render-backend>.onrender.com/health` |
 | **GitHub Repository** | GitHub | [https://github.com/ambujyadav19/lyftr-ai-fullstack-chatbot](https://github.com/ambujyadav19/lyftr-ai-fullstack-chatbot) |
 | **Demo Video** | Loom / Drive | *[2–3 min walk-through recording]* |
+
+---
+
+### Step-by-Step Cloud Deployment Guide
+
+#### A. Deploy Backend to Render (Docker + Persistent SQLite Volume)
+1. Log in to [Render.com](https://render.com).
+2. Click **New +** > **Blueprint** (or **Web Service**).
+3. Connect your GitHub account and select repository: `ambujyadav19/lyftr-ai-fullstack-chatbot`.
+4. Render will automatically detect `render.yaml` at the repo root and configure:
+   - **Environment:** Docker (`./backend/Dockerfile`)
+   - **Health Check Path:** `/health`
+   - **Persistent Disk:** Mounted at `/data` (1 GB) for SQLite persistence
+   - **Environment Variables:**
+     - `LLM_API_KEYS`: Enter your comma-separated keys (e.g. `your_gemini_key_1,your_gemini_key_2`)
+     - `DATABASE_URL`: `sqlite:////data/app.db`
+     - `ALLOWED_ORIGINS`: `*`
+     - `ENABLE_FAILURE_SIMULATION`: `true`
+     - `MODEL_NAME`: `gemini/gemini-2.0-flash`
+5. Click **Apply**. Once built, copy your backend URL (e.g. `https://lyftr-backend.onrender.com`).
+6. Test in browser: `https://<your-backend-app>.onrender.com/health` should return `{"status":"ok", "keys_configured":2, "cache_enabled":true}`.
+
+#### B. Deploy Frontend to Vercel
+1. Log in to [Vercel.com](https://vercel.com).
+2. Click **Add New...** > **Project**.
+3. Import your GitHub repository: `ambujyadav19/lyftr-ai-fullstack-chatbot`.
+4. In project configuration:
+   - **Root Directory:** Click Edit and select `frontend` (or leave root since `vercel.json` is provided).
+   - **Framework Preset:** Vite
+   - **Environment Variables:**
+     - Add `VITE_API_BASE_URL` with the value of your Render backend URL (e.g. `https://lyftr-backend.onrender.com`).
+5. Click **Deploy**. Vercel will build and assign your live production URL (e.g. `https://lyftr-ai-fullstack-chatbot.vercel.app`).
 
 ---
 
